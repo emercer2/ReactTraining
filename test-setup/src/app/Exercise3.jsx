@@ -326,6 +326,117 @@ function SortButton({ sortDirection, onClick }) {
   );
 }
 
+function AddMemberForm({ onAdd, onCancel }) {
+  const [name, setName] = useState("");
+  const [role, setRole] = useState("");
+  const [department, setDepartment] = useState("Engineering");
+  const [email, setEmail] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!name.trim() || !role.trim() || !email.trim()) return;
+
+    onAdd({
+      id: Date.now(),
+      name: name.trim(),
+      role: role.trim(),
+      department,
+      email: email.trim(),
+      avatar: "",
+    });
+
+    // Reset form
+    setName("");
+    setRole("");
+    setDepartment("Engineering");
+    setEmail("");
+  };
+
+  const inputClasses =
+    "w-full py-2 px-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all duration-200";
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-md mb-6 border border-gray-200 dark:border-gray-700"
+    >
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+        Add New Team Member
+      </h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
+            Name
+          </label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Full name"
+            className={inputClasses}
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
+            Role
+          </label>
+          <input
+            type="text"
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            placeholder="Job title"
+            className={inputClasses}
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
+            Department
+          </label>
+          <select
+            value={department}
+            onChange={(e) => setDepartment(e.target.value)}
+            className={inputClasses}
+          >
+            <option value="Engineering">Engineering</option>
+            <option value="Quality Assurance">Quality Assurance</option>
+            <option value="Infrastructure">Infrastructure</option>
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm text-gray-600 dark:text-gray-400 mb-1">
+            Email
+          </label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="email@company.com"
+            className={inputClasses}
+            required
+          />
+        </div>
+      </div>
+      <div className="flex gap-2 mt-4">
+        <button
+          type="submit"
+          className="py-2 px-4 bg-indigo-600 text-white rounded-sm cursor-pointer hover:bg-indigo-700 transition-all duration-200"
+        >
+          Add Member
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="py-2 px-4 bg-gray-200 dark:bg-gray-600 dark:text-gray-200 rounded-sm cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-500 transition-all duration-200"
+        >
+          Cancel
+        </button>
+      </div>
+    </form>
+  );
+}
+
 // ============================================================================
 // TASK 3: Convert App component to use Tailwind
 // ============================================================================
@@ -343,6 +454,7 @@ function App() {
   const [members, setMembers] = useState(teamMembers);
   const [searchTerm, setSearchTerm] = useState("");
   const [sort, setSort] = useState(0);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   function handleSortClick() {
     setSort((prevSort) => (prevSort === 0 ? 1 : 0));
@@ -364,6 +476,11 @@ function App() {
 
   const handleDelete = (id) => {
     setMembers(members.filter((member) => member.id !== id));
+  };
+
+  const handleAddMember = (newMember) => {
+    setMembers([...members, newMember]);
+    setShowAddForm(false);
   };
 
   // Filter members based on search
@@ -396,7 +513,7 @@ function App() {
           <div className="flex items-center gap-4">
             <span className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
               <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-              {teamMembers.length} Members
+              {members.length} Members
             </span>
 
             <input
@@ -406,8 +523,22 @@ function App() {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="py-3 px-4 text-base rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white w-full max-w-100 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all duration-200"
             />
+
+            <button
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="py-3 px-4 bg-indigo-600 text-white rounded-lg cursor-pointer hover:bg-indigo-700 transition-all duration-200 whitespace-nowrap"
+            >
+              {showAddForm ? "Cancel" : "+ Add Member"}
+            </button>
           </div>
         </div>
+
+        {showAddForm && (
+          <AddMemberForm
+            onAdd={handleAddMember}
+            onCancel={() => setShowAddForm(false)}
+          />
+        )}
 
         <TeamList
           members={filteredMembers}
