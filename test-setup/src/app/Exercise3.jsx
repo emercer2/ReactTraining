@@ -78,6 +78,22 @@ function getBgColorClass(name) {
   return wcagBgColors[Math.abs(hash) % wcagBgColors.length];
 }
 
+// Department badge colors (specific colors for each department)
+const departmentColors = {
+  Engineering: "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300",
+  "Quality Assurance":
+    "bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300",
+  Infrastructure:
+    "bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300",
+};
+
+function getDeptBadgeClasses(department) {
+  return (
+    departmentColors[department] ||
+    "bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+  );
+}
+
 const teamMembers = [
   {
     id: 1,
@@ -141,7 +157,16 @@ const teamMembers = [
 //   className="border border-gray-200 rounded-lg p-4"
 // ============================================================================
 
-function TeamMember({ id, name, role, department, email, avatar, onSave }) {
+function TeamMember({
+  id,
+  name,
+  role,
+  department,
+  email,
+  avatar,
+  onSave,
+  onDelete,
+}) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedName, setEditedName] = useState(name);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -157,10 +182,14 @@ function TeamMember({ id, name, role, department, email, avatar, onSave }) {
     setIsEditing(false);
   };
 
+  const handleDelete = () => {
+    onDelete(id);
+  };
+
   return (
     // TODO: Replace style={{...}} with className="..."
     <div
-      className={`${isSelected ? "border-2 border-indigo-500 shadow-lg" : "border border-gray-200"} bg-white rounded-xl p-6 text-center shadow-sm hover:shadow-lg transition-shadow duration-200`}
+      className={`${isSelected ? "border-2 border-indigo-500 shadow-lg" : "border border-gray-200 dark:border-gray-700"} bg-white dark:bg-gray-800 rounded-xl p-6 text-center shadow-sm hover:shadow-lg transition-all duration-200`}
       onClick={() => setIsSelected(!isSelected)}
     >
       {/* TODO: Style the avatar - make it rounded, with proper sizing */}
@@ -187,18 +216,18 @@ function TeamMember({ id, name, role, department, email, avatar, onSave }) {
             type="text"
             value={editedName}
             onChange={(e) => setEditedName(e.target.value)}
-            className="py-2 px-4 border border-gray-300 rounded-sm"
+            className="py-2 px-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all duration-200"
           />
           <div style={{ display: "flex", gap: "8px" }}>
             <button
               onClick={handleSave}
-              className="py-2 px-4 bg-indigo-600 text-white rounded-sm cursor-pointer"
+              className="py-2 px-4 bg-indigo-600 text-white rounded-sm cursor-pointer hover:bg-indigo-700 transition-all duration-200"
             >
               Save
             </button>
             <button
               onClick={handleCancel}
-              className="py-2 px-4 bg-gray-200 rounded-sm cursor-pointer"
+              className="py-2 px-4 bg-gray-200 dark:bg-gray-600 dark:text-gray-200 rounded-sm cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-500 transition-all duration-200"
             >
               Cancel
             </button>
@@ -206,24 +235,28 @@ function TeamMember({ id, name, role, department, email, avatar, onSave }) {
         </div>
       ) : (
         <div>
-          <h3 className="mt-4 text-lg font-semibold text-gray-900">{name}</h3>
+          <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-white">
+            {name}
+          </h3>
           <button
             onClick={() => setIsEditing(true)}
-            className="py-2 px-4 bg-gray-200 text-sm cursor-pointer mt-1 rounded-sm"
+            className="py-2 px-4 bg-gray-200 dark:bg-gray-700 dark:text-gray-200 text-sm cursor-pointer mt-1 rounded-sm hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
           >
             Edit
           </button>
         </div>
       )}
       {/* TODO: Style the department badge - colored background, small text */}
-      <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm inline-block my-2">
+      <span
+        className={`${getDeptBadgeClasses(department)} px-3 py-1 rounded-full text-sm inline-block my-2 transition-all duration-200`}
+      >
         {department}
       </span>
       <div>
         {/* TODO: Add expand/collapse button */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="py-2 px-4 bg-gray-200 rounded-sm cursor-pointer"
+          className="py-2 px-4 bg-gray-200 dark:bg-gray-700 dark:text-gray-200 rounded-sm cursor-pointer hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200"
         >
           {isExpanded ? "Show Less" : "Show More"}
         </button>
@@ -232,9 +265,17 @@ function TeamMember({ id, name, role, department, email, avatar, onSave }) {
         {isExpanded && (
           <div>
             {/* TODO: Style the role - medium gray color */}
-            <p className="text-gray-600 mt-1">{role}</p>
+            <p className="text-gray-600 dark:text-gray-400 mt-1">{role}</p>
             {/* TODO: Style the email - smaller text, lighter color */}
-            <p className="text-gray-400 text-sm mt-3">{email}</p>
+            <p className="text-gray-400 dark:text-gray-500 text-sm mt-3">
+              {email}
+            </p>
+            <button
+              onClick={handleDelete}
+              className="py-2 px-4 mt-2 bg-red-500 text-red-50 rounded-sm cursor-pointer hover:bg-red-600 transition-all duration-200"
+            >
+              🗑️ Remove from Team
+            </button>
           </div>
         )}
       </div>
@@ -253,7 +294,7 @@ function TeamMember({ id, name, role, department, email, avatar, onSave }) {
 // HINT: className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
 // ============================================================================
 
-function TeamList({ members, handleCardUpdate }) {
+function TeamList({ members, handleCardUpdate, onDelete }) {
   return (
     // TODO: Replace with Tailwind grid classes
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
@@ -267,6 +308,7 @@ function TeamList({ members, handleCardUpdate }) {
           email={member.email}
           avatar={member.avatar}
           onSave={handleCardUpdate}
+          onDelete={onDelete}
         />
       ))}
     </div>
@@ -275,7 +317,7 @@ function TeamList({ members, handleCardUpdate }) {
 
 function SortButton({ sortDirection, onClick }) {
   return (
-    <div className="mb-6 flex items-center space-x-2">
+    <div className="mb-6 flex items-center space-x-2 dark:text-gray-200">
       <button className="text-md" onClick={onClick}>
         {sortDirection === "asc" ? "↑" : "↓"}
       </button>
@@ -299,6 +341,7 @@ function SortButton({ sortDirection, onClick }) {
 function App() {
   // TODO: Add state for team members
   const [members, setMembers] = useState(teamMembers);
+  const [searchTerm, setSearchTerm] = useState("");
   const [sort, setSort] = useState(0);
 
   function handleSortClick() {
@@ -319,31 +362,66 @@ function App() {
     );
   };
 
+  const handleDelete = (id) => {
+    setMembers(members.filter((member) => member.id !== id));
+  };
+
+  // Filter members based on search
+  const filteredMembers = sortedMembers.filter(
+    (member) =>
+      member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.role.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
   return (
     // TODO: Replace with Tailwind classes
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <div className="max-w-6xl mx-auto px-4 py-12">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">Our Team</h1>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-3">
+            Our Team
+          </h1>
 
-          <p className="text-gray-600 text-lg">
+          <p className="text-gray-600 dark:text-gray-400 text-lg">
             Meet the amazing people behind our success
           </p>
+        </div>
+
+        <div className="flex justify-between items-center mb-6">
           <SortButton
             sortDirection={sort === 0 ? "asc" : "desc"}
             onClick={handleSortClick}
           />
-          <div className="mt-4 flex justify-center gap-2">
-            <span className="inline-flex items-center gap-1 text-sm text-gray-500">
+
+          <div className="flex items-center gap-4">
+            <span className="inline-flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
               <span className="w-2 h-2 bg-green-500 rounded-full"></span>
               {teamMembers.length} Members
             </span>
+
+            <input
+              type="text"
+              placeholder="Search by name or role..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="py-3 px-4 text-base rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white w-full max-w-100 focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition-all duration-200"
+            />
           </div>
         </div>
 
-        <TeamList members={sortedMembers} handleCardUpdate={handleCardUpdate} />
+        <TeamList
+          members={filteredMembers}
+          handleCardUpdate={handleCardUpdate}
+          onDelete={handleDelete}
+        />
 
-        <div className="text-center mt-12 text-gray-400 text-sm">
+        {filteredMembers.length === 0 && (
+          <p className="text-center text-gray-500 dark:text-gray-400 mt-10">
+            No team members found matching &apos;{searchTerm}&apos;
+          </p>
+        )}
+
+        <div className="text-center mt-12 text-gray-400 dark:text-gray-500 text-sm">
           Built with React + Tailwind CSS
         </div>
       </div>
@@ -354,10 +432,10 @@ function App() {
 // ============================================================================
 // STRETCH GOALS (if you finish early)
 // ============================================================================
-// 1. Add hover effects to cards (hover:shadow-lg, hover:scale-105)
-// 2. Add a gradient background to the page
-// 3. Add dark mode support (dark:bg-gray-800, etc.)
-// 4. Add smooth transitions (transition-all duration-200)
-// 5. Style the department badges with different colors per department
+//// 1. Add hover effects to cards (hover:shadow-lg, hover:scale-105)
+//// 2. Add a gradient background to the page
+//// 3. Add dark mode support (dark:bg-gray-800, etc.)
+//// 4. Add smooth transitions (transition-all duration-200)
+//// 5. Style the department badges with different colors per department
 
 export default App;

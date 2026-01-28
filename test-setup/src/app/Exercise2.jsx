@@ -497,10 +497,10 @@ function App() {
 // ============================================================================
 // STRETCH GOALS (if you finish early)
 // ============================================================================
-// 1. Add a "Delete" button to remove team members
+//// 1. Add a "Delete" button to remove team members
 // 2. Add a form to create new team members
-// 3. Add a search/filter input to filter team members by name
-// 4. DONE Combine expandable AND editable features in one card
-// 5. DONE Add a "selected" state with different styling for selected cards
+//// 3. Add a search/filter input to filter team members by name
+//// 4. Combine expandable AND editable features in one card
+//// 5. Add a "selected" state with different styling for selected cards
 
 export default App;
